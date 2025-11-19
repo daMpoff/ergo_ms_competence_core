@@ -6,6 +6,11 @@
       "title": "База знаний",
       "list": [
         {
+          "icon": "CircuitBoard",
+          "name": "Технологии",
+          "routeName": "CompetenceCoreTechnologies"
+        },
+        {
           "icon": "BadgeCheck",
           "name": "Компетенции",
           "routeName": "CompetenceCoreCompetences"
@@ -14,11 +19,6 @@
           "icon": "BriefcaseBusiness",
           "name": "Профили вакансий",
           "routeName": "CompetenceCoreVacancyProfiles"
-        },
-        {
-          "icon": "CircuitBoard",
-          "name": "Технологии",
-          "routeName": "CompetenceCoreTechnologies"
         }
       ]
     }

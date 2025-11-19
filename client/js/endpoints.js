@@ -13,6 +13,7 @@ export const competenceCoreEndpoints = {
     technologiesList: 'competence_core/skill-map/technologies/',
     technologyCategories: 'competence_core/skill-map/technologies/categories/',
     technologyAliases: (id) => `competence_core/skill-map/technologies/${id}/aliases/`,
+    technologyChildren: (id) => `competence_core/skill-map/technologies/${id}/children/`,
   },
 }
 

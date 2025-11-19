@@ -1,21 +1,34 @@
 <template>
   <div class="container py-4">
-    <!-- Заголовок + общий контроллер -->
+    <!-- Заголовок и общие контролы фильтрации. -->
     <div
-      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2"
+      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 tech-toolbar"
     >
       <div>
-        <h2 class="mb-1">Технологии</h2>
-        <div class="text-muted small">
-          {{ filteredCount }} из {{ totalCount }} технологий
+        <h2 class="mb-1 d-flex align-items-center gap-2 tech-title">
+          <Network :size="26" :stroke-width="1.7" class="tech-title-icon" />
+          <span>Карта технологий</span>
+        </h2>
+        <div class="tech-toolbar-count">
+          <span v-if="filteredCount > 0">
+            <span class="tech-toolbar-count-main">
+              {{ foundWord(filteredCount) }} {{ filteredCount }} {{ technologiesWord(filteredCount) }}
+            </span>
+            <span class="tech-toolbar-count-total">
+              из {{ totalCount }} всего
+            </span>
+          </span>
+          <span v-else>
+            Ничего не найдено
+          </span>
         </div>
       </div>
 
-      <div class="d-flex flex-wrap gap-2">
+      <div class="d-flex flex-wrap align-items-stretch tech-toolbar-controls">
         <div class="input-group input-group-sm" style="min-width: 240px">
           <span class="input-group-text">Поиск</span>
           <input
-            v-model="search"
+            v-model="searchInput"
             type="text"
             class="form-control"
             placeholder="Название или описание"
@@ -37,28 +50,56 @@
           {{ sortDir === 'desc' ? 'По убыванию' : 'По возрастанию' }}
         </button>
 
-        <div class="btn-group btn-group-sm" role="group">
+        <div class="input-group input-group-sm w-auto">
+          <span class="input-group-text">На странице</span>
+          <select v-model.number="pageSize" class="form-select form-select-sm">
+            <option v-for="size in pageSizeOptions" :key="size" :value="size">
+              {{ size }}
+            </option>
+          </select>
+        </div>
+
+        <div class="btn-group btn-group-sm tech-view-toggle" role="group">
           <button
             type="button"
-            class="btn"
+            class="btn tech-view-toggle-btn"
             :class="viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'"
             @click="viewMode = 'table'"
           >
-            Таблица
+            <span class="tech-view-toggle-icon">
+              <LayoutList :size="16" :stroke-width="1.8" />
+            </span>
+            <span>Таблица</span>
           </button>
           <button
             type="button"
-            class="btn"
+            class="btn tech-view-toggle-btn"
             :class="viewMode === 'cards' ? 'btn-primary' : 'btn-outline-primary'"
             @click="viewMode = 'cards'"
           >
-            Карточки
+            <span class="tech-view-toggle-icon">
+              <LayoutGrid :size="16" :stroke-width="1.8" />
+            </span>
+            <span>Карточки</span>
+          </button>
+        </div>
+
+        <div class="tech-add-button-wrap">
+          <button
+            type="button"
+            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2 tech-add-button"
+            @click="openCreateTechnology"
+          >
+            <span class="tech-add-button-icon">
+              <Plus :size="14" :stroke-width="2.2" />
+            </span>
+            <span class="tech-add-button-label">Добавить технологию</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Категории как интерактивные "чипы" -->
+    <!-- Категории как интерактивные "чипы". -->
     <div class="mb-3">
       <div class="d-flex flex-wrap gap-2">
         <button
@@ -80,10 +121,30 @@
           {{ cat.label }}
         </button>
       </div>
+      <Transition name="synonyms-hint">
+        <div v-if="showSynonymsHint" class="tech-synonyms-hint mt-2">
+          <span class="tech-synonyms-hint-icon">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <line x1="12" y1="10" x2="12" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              <circle cx="12" cy="7" r="1" fill="currentColor" />
+            </svg>
+          </span>
+          <span class="tech-synonyms-hint-text">
+            Нажмите по строке технологии или по кнопке в карточке для просмотра синонимов
+          </span>
+        </div>
+      </Transition>
     </div>
 
-    <div v-if="loading" class="text-center py-5">
-      Загрузка...
+    <div v-if="loading" class="tech-loading py-5">
+      <div class="tech-loading-spinner mb-3"></div>
+      <div class="w-100">
+        <div v-for="n in 5" :key="n" class="tech-skeleton-row">
+          <div class="tech-skeleton tech-skeleton-title"></div>
+          <div class="tech-skeleton tech-skeleton-subtitle"></div>
+        </div>
+      </div>
     </div>
 
     <div v-else-if="error" class="alert alert-danger">
@@ -95,20 +156,20 @@
         Технологии не найдены. Попробуйте изменить фильтры.
       </div>
 
-      <!-- Табличное представление -->
+      <!-- Табличное представление технологий. -->
       <div v-else-if="viewMode === 'table'" class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover align-middle tech-table">
           <thead class="table-light">
             <tr>
-              <th>Название</th>
-              <th class="d-none d-md-table-cell">Категория</th>
-              <th class="text-end">Популярность</th>
-              <th class="text-end d-none d-md-table-cell">Релевантность</th>
-              <th class="text-end d-none d-lg-table-cell">Упоминаний</th>
+              <th class="tech-table-head">Название</th>
+              <th class="tech-table-head d-none d-md-table-cell">Категория</th>
+              <th class="tech-table-head text-end">Популярность</th>
+              <th class="tech-table-head text-end d-none d-md-table-cell">Релевантность</th>
+              <th class="tech-table-head text-end d-none d-lg-table-cell">Упоминаний</th>
             </tr>
           </thead>
           <tbody>
-            <template v-for="tech in sortedItems" :key="tech.id">
+            <template v-for="tech in paginatedItems" :key="tech.id">
               <tr
                 class="tech-row"
                 :class="{ 'table-active': expandedId === tech.id }"
@@ -121,8 +182,22 @@
                   </div>
                 </td>
                 <td class="d-none d-md-table-cell">
-                  <span v-if="tech.category_display" class="badge bg-light text-dark">
-                    {{ tech.category_display }}
+                  <span
+                    v-if="tech.category_display"
+                    class="badge rounded-pill tech-category-badge"
+                  >
+                    <span
+                      class="tech-category-icon-wrap"
+                      :class="categoryIconClass(tech.category)"
+                    >
+                      <component
+                        :is="categoryIcon(tech.category)"
+                        :size="12"
+                        stroke-width="1.8"
+                        class="tech-category-icon"
+                      />
+                    </span>
+                    <span>{{ tech.category_display }}</span>
                   </span>
                 </td>
                 <td class="text-end">
@@ -146,36 +221,117 @@
               </tr>
               <tr v-if="expandedId === tech.id">
                 <td colspan="5" class="bg-light">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <strong>Синонимы:</strong>
-                      <span v-if="aliasesLoading[tech.id]" class="text-muted ms-2">
-                        Загрузка...
-                      </span>
-                      <span v-else-if="aliasesError[tech.id]" class="text-danger ms-2">
-                        {{ aliasesError[tech.id] }}
-                      </span>
+                  <div class="tech-expanded-cell position-relative">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="tech-section-header">
+                        <span class="tech-section-title">Синонимы</span>
+                        <span
+                          v-if="tech.aliases_count"
+                          class="tech-section-count"
+                        >
+                          ({{ tech.aliases_count }})
+                        </span>
+                        <span
+                          v-if="aliasesLoading[tech.id]"
+                          class="tech-section-status text-muted"
+                        >
+                          Загрузка...
+                        </span>
+                        <span
+                          v-else-if="aliasesError[tech.id]"
+                          class="tech-section-status text-danger"
+                        >
+                          {{ aliasesError[tech.id] }}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        class="tech-close-btn"
+                        @click.stop="toggleExpanded(tech, true)"
+                      >
+                        <span class="tech-close-btn-icon"></span>
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-secondary"
-                      @click.stop="toggleExpanded(tech, true)"
-                    >
-                      Закрыть
-                    </button>
-                  </div>
 
-                  <div v-if="aliasesById[tech.id]?.length" class="mt-2 d-flex flex-wrap gap-2">
-                    <span
-                      v-for="alias in aliasesById[tech.id]"
-                      :key="alias.id"
-                      class="badge bg-secondary"
-                    >
-                      {{ alias.alias }}
-                    </span>
-                  </div>
-                  <div v-else-if="!aliasesLoading[tech.id]" class="mt-2 text-muted small">
-                    Синонимов не найдено.
+                    <div class="row g-2 align-items-start">
+                      <div class="col-12">
+                        <div
+                          v-if="aliasesById[tech.id]?.length"
+                          class="d-flex flex-wrap gap-2"
+                        >
+                          <span
+                            v-for="alias in aliasesById[tech.id]"
+                            :key="alias.id"
+                            class="tech-alias-badge"
+                          >
+                            {{ alias.alias }}
+                          </span>
+                        </div>
+                        <div v-else-if="!aliasesLoading[tech.id]" class="text-muted small">
+                          Синонимов не найдено.
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <div class="tech-section-header">
+                          <span class="tech-section-title">Дочерние технологии</span>
+                          <span
+                            v-if="tech.child_technologies_count"
+                            class="tech-section-count"
+                          >
+                            ({{ tech.child_technologies_count }})
+                          </span>
+                        </div>
+                        <div v-if="childrenLoading[tech.id]" class="text-muted small">
+                          Загрузка...
+                        </div>
+                        <div v-else-if="childrenError[tech.id]" class="text-danger small">
+                          {{ childrenError[tech.id] }}
+                        </div>
+                        <div
+                          v-else-if="childrenById[tech.id]?.length"
+                          class="d-flex flex-wrap gap-2"
+                        >
+                          <span
+                            v-for="child in childrenById[tech.id]"
+                            :key="child.id"
+                            class="tech-child-badge"
+                          >
+                            {{ child.name }}
+                          </span>
+                        </div>
+                        <div v-else class="tech-section-empty">
+                          <span class="tech-section-empty-icon">
+                            <svg
+                              viewBox="0 0 24 24"
+                              width="14"
+                              height="14"
+                              aria-hidden="true"
+                            >
+                              <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                              />
+                              <line
+                                x1="8"
+                                y1="12"
+                                x2="16"
+                                y2="12"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                                stroke-linecap="round"
+                              />
+                            </svg>
+                          </span>
+                          <span class="tech-section-empty-text">
+                            Дочерние технологии отсутствуют
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -184,22 +340,38 @@
         </table>
       </div>
 
-      <!-- Представление карточками -->
+      <!-- Представление технологий карточками. -->
       <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        <div v-for="tech in sortedItems" :key="tech.id" class="col">
+        <div v-for="tech in paginatedItems" :key="tech.id" class="col">
           <div
             class="card h-100 shadow-sm border-0 tech-card"
             :class="{ 'border-primary': expandedId === tech.id }"
           >
             <div class="card-body d-flex flex-column">
               <div class="d-flex justify-content-between align-items-start mb-2">
-                <h5 class="card-title mb-0">{{ tech.name }}</h5>
-                <span
-                  v-if="tech.category_display"
-                  class="badge bg-light text-dark ms-2"
-                >
-                  {{ tech.category_display }}
-                </span>
+                <div class="me-2">
+                  <h5 class="card-title mb-1">{{ tech.name }}</h5>
+                  <div v-if="tech.category_display" class="text-muted small mb-1">
+                    Категория: {{ tech.category_display }}
+                  </div>
+                  <div
+                    class="text-muted small"
+                    v-if="tech.aliases_count || tech.child_technologies_count"
+                  >
+                    <span v-if="tech.aliases_count">
+                      Синонимов: {{ tech.aliases_count }}
+                    </span>
+                    <span
+                      v-if="tech.aliases_count && tech.child_technologies_count"
+                      class="mx-1"
+                    >
+                      •
+                    </span>
+                    <span v-if="tech.child_technologies_count">
+                      Дочерние технологии: {{ tech.child_technologies_count }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <p v-if="tech.description" class="card-text text-muted small mb-3">
@@ -207,33 +379,42 @@
               </p>
 
               <div class="mt-auto">
-                <div class="d-flex justify-content-between mb-1 small">
-                  <span class="text-muted">Популярность</span>
-                  <span>{{ tech.popularity }}</span>
-                </div>
-                <div class="progress mb-2" style="height: 4px">
-                  <div
-                    class="progress-bar bg-primary"
-                    role="progressbar"
-                    :style="{ width: popularityPercent(tech) + '%' }"
-                  ></div>
+                <div class="d-flex flex-wrap gap-2 mb-2 small">
+                  <span class="badge bg-light text-dark">
+                    Релевантность: {{ (tech.relevance ?? 0).toFixed(2) }}
+                  </span>
+                  <span class="badge bg-light text-dark">
+                    Упоминаний: {{ tech.occurrence_count ?? 0 }}
+                  </span>
                 </div>
 
-                <div class="d-flex justify-content-between small text-muted mb-2">
-                  <span>Релевантность: {{ (tech.relevance ?? 0).toFixed(2) }}</span>
-                  <span>Упоминаний: {{ tech.occurrence_count }}</span>
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between small">
+                    <span class="text-muted">Популярность</span>
+                    <span>{{ popularityPercent(tech) }}%</span>
+                  </div>
+                  <div class="progress" style="height: 4px">
+                    <div
+                      class="progress-bar bg-primary"
+                      role="progressbar"
+                      :style="{ width: popularityPercent(tech) + '%' }"
+                    ></div>
+                  </div>
                 </div>
 
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-primary w-100"
+                  class="btn btn-sm btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-1"
                   @click.stop="toggleExpanded(tech)"
                 >
                   <span v-if="expandedId === tech.id">
-                    Скрыть синонимы
+                    Скрыть
                   </span>
                   <span v-else>
-                    Показать синонимы
+                    Подробнее
+                    <span v-if="tech.aliases_count">
+                      ({{ tech.aliases_count }})
+                    </span>
                   </span>
                 </button>
 
@@ -242,35 +423,107 @@
                   class="mt-2 border-top pt-2"
                 >
                   <div class="d-flex justify-content-between align-items-start">
-                    <strong class="small">Синонимы:</strong>
-                    <span
-                      v-if="aliasesLoading[tech.id]"
-                      class="text-muted small ms-2"
-                    >
-                      Загрузка...
-                    </span>
-                    <span
-                      v-else-if="aliasesError[tech.id]"
-                      class="text-danger small ms-2"
-                    >
-                      {{ aliasesError[tech.id] }}
-                    </span>
+                    <div class="tech-section-header">
+                      <span class="tech-section-title">Синонимы</span>
+                      <span
+                        v-if="tech.aliases_count"
+                        class="tech-section-count"
+                      >
+                        ({{ tech.aliases_count }})
+                      </span>
+                      <span
+                        v-if="aliasesLoading[tech.id]"
+                        class="tech-section-status text-muted"
+                      >
+                        Загрузка...
+                      </span>
+                      <span
+                        v-else-if="aliasesError[tech.id]"
+                        class="tech-section-status text-danger"
+                      >
+                        {{ aliasesError[tech.id] }}
+                      </span>
+                    </div>
                   </div>
 
-                  <div
-                    v-if="aliasesById[tech.id]?.length"
-                    class="mt-2 d-flex flex-wrap gap-2"
-                  >
-                    <span
-                      v-for="alias in aliasesById[tech.id]"
-                      :key="alias.id"
-                      class="badge bg-secondary"
-                    >
-                      {{ alias.alias }}
-                    </span>
-                  </div>
-                  <div v-else-if="!aliasesLoading[tech.id]" class="mt-2 text-muted small">
-                    Синонимов не найдено.
+                    <div class="row g-2 align-items-start">
+                      <div class="col-12">
+                      <div
+                        v-if="aliasesById[tech.id]?.length"
+                        class="d-flex flex-wrap gap-2"
+                      >
+                        <span
+                          v-for="alias in aliasesById[tech.id]"
+                          :key="alias.id"
+                          class="tech-alias-badge"
+                        >
+                          {{ alias.alias }}
+                        </span>
+                      </div>
+                      <div v-else-if="!aliasesLoading[tech.id]" class="text-muted small">
+                        Синонимов не найдено.
+                      </div>
+                    </div>
+                      <div class="col-12">
+                        <div class="tech-section-header">
+                          <span class="tech-section-title">Дочерние технологии</span>
+                          <span
+                            v-if="tech.child_technologies_count"
+                            class="tech-section-count"
+                          >
+                            ({{ tech.child_technologies_count }})
+                          </span>
+                        </div>
+                        <div v-if="childrenLoading[tech.id]" class="text-muted small">
+                        Загрузка...
+                      </div>
+                        <div v-else-if="childrenError[tech.id]" class="text-danger small">
+                        {{ childrenError[tech.id] }}
+                      </div>
+                      <div
+                        v-else-if="childrenById[tech.id]?.length"
+                          class="d-flex flex-wrap gap-2"
+                      >
+                        <span
+                          v-for="child in childrenById[tech.id]"
+                          :key="child.id"
+                          class="tech-child-badge"
+                        >
+                          {{ child.name }}
+                        </span>
+                      </div>
+                      <div v-else class="tech-section-empty">
+                        <span class="tech-section-empty-icon">
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="14"
+                            height="14"
+                            aria-hidden="true"
+                          >
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="9"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                            />
+                            <line
+                              x1="8"
+                              y1="12"
+                              x2="16"
+                              y2="12"
+                              stroke="currentColor"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                            />
+                          </svg>
+                        </span>
+                        <span class="tech-section-empty-text">
+                          Дочерние технологии отсутствуют
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -278,149 +531,113 @@
           </div>
         </div>
       </div>
+
+      <!-- Пагинация по списку технологий. -->
+      <div
+        v-if="totalPages > 1"
+        class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3"
+      >
+        <div class="text-muted small">
+          Страница {{ page }} из {{ totalPages }}
+        </div>
+        <nav aria-label="Пагинация по технологиям">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" :class="{ disabled: page === 1 }">
+              <button
+                class="page-link"
+                type="button"
+                @click="page > 1 && (page = page - 1)"
+              >
+                Предыдущая
+              </button>
+            </li>
+            <li
+              v-for="p in pageNumbers"
+              :key="p"
+              class="page-item"
+              :class="{ active: p === page, disabled: p === '...' }"
+            >
+              <button
+                class="page-link"
+                type="button"
+                @click="typeof p === 'number' && (page = p)"
+              >
+                {{ p }}
+              </button>
+            </li>
+            <li class="page-item" :class="{ disabled: page === totalPages }">
+              <button
+                class="page-link"
+                type="button"
+                @click="page < totalPages && (page = page + 1)"
+              >
+                Следующая
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useTechnologiesList } from '../js/useTechnologies.js'
-
-const search = ref('')
-const category = ref('')
-const sortBy = ref('popularity')
-const sortDir = ref('desc')
-const viewMode = ref('table')
-const expandedId = ref(null)
+import { useTechnologiesListPage } from '../js/useTechnologiesListPage.js'
 
 const {
+  Plus,
+  Network,
+  Code2,
+  Layers,
+  LibraryIcon,
+  Database,
+  Server,
+  Cloud,
+  Wrench,
+  search,
+  searchInput,
+  category,
+  sortBy,
+  sortDir,
+  viewMode,
+  expandedId,
+  showSynonymsHint,
+  page,
+  pageSize,
+  pageSizeOptions,
   items,
   categories,
   loading,
   error,
-  fetchCategories,
-  fetchTechnologies,
   aliasesById,
   aliasesLoading,
   aliasesError,
-  fetchAliases,
-} = useTechnologiesList()
-
-const totalCount = computed(() => items.value.length)
-
-const filteredItems = computed(() => {
-  const term = search.value.trim().toLowerCase()
-  return items.value.filter((tech) => {
-    const matchesCategory = !category.value || tech.category === category.value
-    if (!term) return matchesCategory
-
-    const inName = tech.name?.toLowerCase().includes(term)
-    const inDesc = tech.description?.toLowerCase().includes(term)
-    return matchesCategory && (inName || inDesc)
-  })
-})
-
-const filteredCount = computed(() => filteredItems.value.length)
-
-const sortedItems = computed(() => {
-  const list = [...filteredItems.value]
-  const dir = sortDir.value === 'asc' ? 1 : -1
-
-  return list.sort((a, b) => {
-    let av
-    let bv
-
-    switch (sortBy.value) {
-      case 'name':
-        av = (a.name || '').toLowerCase()
-        bv = (b.name || '').toLowerCase()
-        if (av < bv) return -1 * dir
-        if (av > bv) return 1 * dir
-        return 0
-      case 'occurrence':
-        av = a.occurrence_count ?? 0
-        bv = b.occurrence_count ?? 0
-        break
-      case 'relevance':
-        av = a.relevance ?? 0
-        bv = b.relevance ?? 0
-        break
-      case 'popularity':
-      default:
-        av = a.popularity ?? 0
-        bv = b.popularity ?? 0
-        break
-    }
-
-    if (av === bv) {
-      const an = (a.name || '').toLowerCase()
-      const bn = (b.name || '').toLowerCase()
-      if (an < bn) return -1
-      if (an > bn) return 1
-      return 0
-    }
-
-    return av > bv ? dir : -dir
-  })
-})
-
-const popularityPercent = (tech) => {
-  const maxPop = Math.max(...items.value.map((t) => t.popularity ?? 0), 1)
-  const value = tech.popularity ?? 0
-  return Math.round((value / maxPop) * 100)
-}
-
-const reload = () => {
-  const params = {}
-  if (category.value) {
-    params.category = category.value
-  }
-  // Поиск и сортировку оставляем на клиенте для максимальной интерактивности
-  fetchTechnologies(params)
-}
-
-const setCategory = (value) => {
-  category.value = value
-  expandedId.value = null
-  reload()
-}
-
-const toggleSortDir = () => {
-  sortDir.value = sortDir.value === 'desc' ? 'asc' : 'desc'
-}
-
-const toggleExpanded = async (tech, forceClose = false) => {
-  if (forceClose || expandedId.value === tech.id) {
-    expandedId.value = null
-    return
-  }
-
-  expandedId.value = tech.id
-
-  if (!aliasesById[tech.id] && !aliasesLoading[tech.id]) {
-    await fetchAliases(tech.id)
-  }
-}
-
-onMounted(async () => {
-  await fetchCategories()
-  await reload()
-})
+  childrenById,
+  childrenLoading,
+  childrenError,
+  totalCount,
+  filteredItems,
+  filteredCount,
+  sortedItems,
+  totalPages,
+  pageStart,
+  pageEnd,
+  paginatedItems,
+  pageNumbers,
+  maxPopularity,
+  technologiesWord,
+  foundWord,
+  popularityPercent,
+  openCreateTechnology,
+  reload,
+  setCategory,
+  toggleSortDir,
+  toggleExpanded,
+  categoryIcon,
+  categoryIconClass,
+} = useTechnologiesListPage()
 </script>
 
-<style scoped>
-.tech-row {
-  cursor: pointer;
-}
-
-.tech-card {
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
-}
-
-.tech-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
-}
-</style>
+<style scoped src="../scss/TechnologiesListPage.scss"></style>
 
  

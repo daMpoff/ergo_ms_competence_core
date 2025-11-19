@@ -10,6 +10,9 @@ export function useTechnologiesList() {
   const aliasesById = ref({})
   const aliasesLoading = ref({})
   const aliasesError = ref({})
+  const childrenById = ref({})
+  const childrenLoading = ref({})
+  const childrenError = ref({})
 
   const fetchCategories = async () => {
     try {
@@ -38,6 +41,67 @@ export function useTechnologiesList() {
     }
   }
 
+  const fetchAliases = async (id) => {
+    if (!id) return
+    // Если уже загружено и нет ошибки - повторно не ходим
+    if (aliasesById.value[id] && !aliasesError.value[id]) {
+      return
+    }
+    if (aliasesLoading.value[id]) {
+      return
+    }
+
+    aliasesLoading.value = { ...aliasesLoading.value, [id]: true }
+    aliasesError.value = { ...aliasesError.value, [id]: '' }
+
+    try {
+      const endpoint = endpoints.competenceCore.technologyAliases(id)
+      const resp = await apiClient.get(endpoint)
+      const data = resp.data
+      const list = Array.isArray(data) ? data : data.results ?? []
+      aliasesById.value = { ...aliasesById.value, [id]: list }
+    } catch (e) {
+      console.error('Ошибка загрузки синонимов технологии', e)
+      aliasesError.value = {
+        ...aliasesError.value,
+        [id]: 'Ошибка загрузки синонимов',
+      }
+      aliasesById.value = { ...aliasesById.value, [id]: [] }
+    } finally {
+      aliasesLoading.value = { ...aliasesLoading.value, [id]: false }
+    }
+  }
+
+  const fetchChildren = async (id) => {
+    if (!id) return
+    if (childrenById.value[id] && !childrenError.value[id]) {
+      return
+    }
+    if (childrenLoading.value[id]) {
+      return
+    }
+
+    childrenLoading.value = { ...childrenLoading.value, [id]: true }
+    childrenError.value = { ...childrenError.value, [id]: '' }
+
+    try {
+      const endpoint = endpoints.competenceCore.technologyChildren(id)
+      const resp = await apiClient.get(endpoint)
+      const data = resp.data
+      const list = Array.isArray(data) ? data : data.results ?? []
+      childrenById.value = { ...childrenById.value, [id]: list }
+    } catch (e) {
+      console.error('Ошибка загрузки дочерних технологий', e)
+      childrenError.value = {
+        ...childrenError.value,
+        [id]: 'Ошибка загрузки дочерних технологий',
+      }
+      childrenById.value = { ...childrenById.value, [id]: [] }
+    } finally {
+      childrenLoading.value = { ...childrenLoading.value, [id]: false }
+    }
+  }
+
   return {
     items,
     categories,
@@ -45,39 +109,14 @@ export function useTechnologiesList() {
     error,
     fetchCategories,
     fetchTechnologies,
-    aliasesById: aliasesById.value,
-    aliasesLoading: aliasesLoading.value,
-    aliasesError: aliasesError.value,
-    async fetchAliases(id) {
-      if (!id) return
-      // Если уже загружено и нет ошибки - повторно не ходим
-      if (aliasesById.value[id] && !aliasesError.value[id]) {
-        return
-      }
-      if (aliasesLoading.value[id]) {
-        return
-      }
-
-      aliasesLoading.value = { ...aliasesLoading.value, [id]: true }
-      aliasesError.value = { ...aliasesError.value, [id]: '' }
-
-      try {
-        const endpoint = endpoints.competenceCore.technologyAliases(id)
-        const resp = await apiClient.get(endpoint)
-        const data = resp.data
-        const list = Array.isArray(data) ? data : data.results ?? []
-        aliasesById.value = { ...aliasesById.value, [id]: list }
-      } catch (e) {
-        console.error('Ошибка загрузки синонимов технологии', e)
-        aliasesError.value = {
-          ...aliasesError.value,
-          [id]: 'Ошибка загрузки синонимов',
-        }
-        aliasesById.value = { ...aliasesById.value, [id]: [] }
-      } finally {
-        aliasesLoading.value = { ...aliasesLoading.value, [id]: false }
-      }
-    },
+    aliasesById,
+    aliasesLoading,
+    aliasesError,
+    fetchAliases,
+    childrenById,
+    childrenLoading,
+    childrenError,
+    fetchChildren,
   }
 }
 
