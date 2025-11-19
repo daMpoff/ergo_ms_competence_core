@@ -1,0 +1,28 @@
+{
+  "menuSections": [
+    {
+      "icon": "BriefcaseBusiness",
+      "routeName": "CompetenceCoreHome",
+      "title": "База знаний",
+      "list": [
+        {
+          "icon": "BadgeCheck",
+          "name": "Компетенции",
+          "routeName": "CompetenceCoreCompetences"
+        },
+        {
+          "icon": "BriefcaseBusiness",
+          "name": "Профили вакансий",
+          "routeName": "CompetenceCoreVacancyProfiles"
+        },
+        {
+          "icon": "CircuitBoard",
+          "name": "Технологии",
+          "routeName": "CompetenceCoreTechnologies"
+        }
+      ]
+    }
+  ]
+}
+
+

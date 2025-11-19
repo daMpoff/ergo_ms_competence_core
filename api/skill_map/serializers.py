@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from modules.competence_core.api.skill_map.models import (
-    Skill, SkillSynonym, Technology, TechnologyAlias, SkillTechnology,
-    SkillCategory, TechnologyCategory
+    Skill, SkillSynonym, Technology, TechnologyAlias, SkillTechnology
 )
 
 
