@@ -1,0 +1,113 @@
+.tech-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.tech-section-title {
+  font-weight: 600;
+}
+
+.tech-section-count {
+  color: var(--color-secondary-text);
+  font-size: 0.8rem;
+}
+
+.tech-section-status {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.tech-section-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--color-secondary-text);
+}
+
+.tech-section-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+}
+
+.tech-section-empty-text {
+  font-weight: 400;
+}
+
+.tech-alias-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background-color: rgba(208, 50, 45, 0.08);
+  color: var(--color-primary-text);
+  border: 1px solid rgba(208, 50, 45, 0.4);
+}
+
+.tech-child-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background-color: rgba(13, 110, 253, 0.08);
+  color: var(--color-primary-text);
+  border: 1px solid rgba(13, 110, 253, 0.35);
+}
+
+.tech-close-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.4rem;
+  border: none;
+  background-color: #dc3545;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+}
+
+.tech-close-btn:hover {
+  background-color: #c12f3d;
+  transform: translateY(-1px);
+  box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.18);
+}
+
+.tech-close-btn-icon {
+  position: relative;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.tech-close-btn-icon::before,
+.tech-close-btn-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: #fff;
+  border-radius: 999px;
+  transform-origin: center;
+}
+
+.tech-close-btn-icon::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.tech-close-btn-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+

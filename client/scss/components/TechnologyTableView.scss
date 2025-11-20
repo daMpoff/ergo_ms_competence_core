@@ -1,0 +1,82 @@
+.tech-row {
+  cursor: pointer;
+}
+
+.tech-table thead {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tech-table-head {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-secondary-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tech-expanded-cell {
+  position: relative;
+  padding-right: 2.25rem;
+}
+
+.tech-category-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.15rem 0.6rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-border);
+  color: var(--color-primary-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tech-category-icon-wrap {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.tech-category-icon {
+  display: block;
+}
+
+.tech-category-icon-lang {
+  background-color: #0d6efd;
+}
+
+.tech-category-icon-framework {
+  background-color: #6610f2;
+}
+
+.tech-category-icon-library {
+  background-color: #d63384;
+}
+
+.tech-category-icon-db {
+  background-color: #fd7e14;
+}
+
+.tech-category-icon-platform {
+  background-color: #20c997;
+}
+
+.tech-category-icon-protocol {
+  background-color: #6f42c1;
+}
+
+.tech-category-icon-service {
+  background-color: #198754;
+}
+
+.tech-category-icon-tool {
+  background-color: #6c757d;
+}
+
