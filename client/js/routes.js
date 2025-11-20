@@ -3,9 +3,19 @@ export default {
   CompetenceCoreHome: {
     path: '/competence-core',
     component: '@/modules/competence_core/client/pages/KnowledgeBaseLayoutPage.vue',
-    redirect: 'CompetenceCoreVacancyProfiles',
+    redirect: 'CompetenceCoreDashboard',
     meta: {
       title: 'Компетенции и вакансии',
+      requiresAuth: true,
+    },
+  },
+
+  // Панель управления модулем
+  CompetenceCoreDashboard: {
+    path: '/competence-core/dashboard',
+    component: '@/modules/competence_core/client/pages/CompetenceCoreDashboardPage.vue',
+    meta: {
+      title: 'Панель управления модулем компетенций',
       requiresAuth: true,
     },
   },

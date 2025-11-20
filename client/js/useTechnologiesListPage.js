@@ -23,6 +23,7 @@ export function useTechnologiesListPage() {
   const viewMode = ref('table')
   const expandedId = ref(null)
   const showSynonymsHint = ref(true)
+  const showCreateModal = ref(false)
   const page = ref(1)
   const pageSize = ref(20)
   const pageSizeOptions = [10, 20, 50, 100]
@@ -297,8 +298,7 @@ export function useTechnologiesListPage() {
   }
 
   const openCreateTechnology = () => {
-    // TODO: заменить на переход к странице создания технологии, когда она появится.
-    console.info('Открытие формы создания технологии пока не реализовано')
+    showCreateModal.value = true
   }
 
   const reload = () => {
@@ -369,6 +369,7 @@ export function useTechnologiesListPage() {
     page,
     pageSize,
     pageSizeOptions,
+    showCreateModal,
     // Данные и вычисления.
     items,
     categories,

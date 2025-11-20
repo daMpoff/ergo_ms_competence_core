@@ -1,0 +1,77 @@
+.cc-dashboard-header {
+  margin-bottom: 1.5rem;
+}
+
+.cc-dashboard-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.cc-dashboard-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.cc-dashboard-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-secondary-text);
+  max-width: 640px;
+}
+
+.cc-dashboard-grid {
+  margin-top: 0.5rem;
+}
+
+.cc-dashboard-card {
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cc-dashboard-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+.cc-dashboard-card-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background-color: var(--color-secondary-background);
+  color: var(--color-primary);
+}
+
+.cc-dashboard-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cc-dashboard-card-accent-tech {
+  background: rgba(80, 136, 255, 0.08);
+  color: var(--color-primary);
+}
+
+.cc-dashboard-card-accent-competences {
+  background: rgba(46, 184, 128, 0.08);
+  color: #2eb880;
+}
+
+.cc-dashboard-card-accent-vacancies {
+  background: rgba(246, 173, 85, 0.08);
+  color: #f6ad55;
+}
+
+@media (max-width: 575.98px) {
+  .cc-dashboard-title {
+    font-size: 1.3rem;
+  }
+
+  .cc-dashboard-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+

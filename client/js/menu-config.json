@@ -6,6 +6,11 @@
       "title": "База знаний",
       "list": [
         {
+          "icon": "LayoutDashboard",
+          "name": "Панель управления",
+          "routeName": "CompetenceCoreDashboard"
+        },
+        {
           "icon": "CircuitBoard",
           "name": "Технологии",
           "routeName": "CompetenceCoreTechnologies"

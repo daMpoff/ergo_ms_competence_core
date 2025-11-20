@@ -25,66 +25,74 @@
       </div>
 
       <div class="d-flex flex-wrap align-items-stretch tech-toolbar-controls">
-        <div class="input-group input-group-sm" style="min-width: 240px">
-          <span class="input-group-text">Поиск</span>
-          <input
-            v-model="searchInput"
-            type="text"
-            class="form-control"
-            placeholder="Название или описание"
-          />
+        <div class="tech-toolbar-block tech-toolbar-search">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">Поиск</span>
+            <input
+              v-model="searchInput"
+              type="text"
+              class="form-control"
+              placeholder="Название или описание"
+            />
+          </div>
         </div>
 
-        <select v-model="sortBy" class="form-select form-select-sm w-auto">
-          <option value="popularity">Популярность</option>
-          <option value="occurrence">Упоминания</option>
-          <option value="relevance">Релевантность</option>
-          <option value="name">Название (А→Я)</option>
-        </select>
-
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-secondary"
-          @click="toggleSortDir"
-        >
-          {{ sortDir === 'desc' ? 'По убыванию' : 'По возрастанию' }}
-        </button>
-
-        <div class="input-group input-group-sm w-auto">
-          <span class="input-group-text">На странице</span>
-          <select v-model.number="pageSize" class="form-select form-select-sm">
-            <option v-for="size in pageSizeOptions" :key="size" :value="size">
-              {{ size }}
-            </option>
+        <div class="tech-toolbar-block tech-toolbar-sort d-flex flex-wrap align-items-center gap-2">
+          <select v-model="sortBy" class="form-select form-select-sm w-auto">
+            <option value="popularity">Популярность</option>
+            <option value="occurrence">Упоминания</option>
+            <option value="relevance">Релевантность</option>
+            <option value="name">Название (А→Я)</option>
           </select>
-        </div>
 
-        <div class="btn-group btn-group-sm tech-view-toggle" role="group">
           <button
             type="button"
-            class="btn tech-view-toggle-btn"
-            :class="viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'"
-            @click="viewMode = 'table'"
+            class="btn btn-sm btn-outline-secondary"
+            @click="toggleSortDir"
           >
-            <span class="tech-view-toggle-icon">
-              <LayoutList :size="16" :stroke-width="1.8" />
-            </span>
-            <span>Таблица</span>
-          </button>
-          <button
-            type="button"
-            class="btn tech-view-toggle-btn"
-            :class="viewMode === 'cards' ? 'btn-primary' : 'btn-outline-primary'"
-            @click="viewMode = 'cards'"
-          >
-            <span class="tech-view-toggle-icon">
-              <LayoutGrid :size="16" :stroke-width="1.8" />
-            </span>
-            <span>Карточки</span>
+            {{ sortDir === 'desc' ? 'По убыванию' : 'По возрастанию' }}
           </button>
         </div>
 
-        <div class="tech-add-button-wrap">
+        <div class="tech-toolbar-block tech-toolbar-page-size">
+          <div class="input-group input-group-sm w-auto">
+            <span class="input-group-text">На странице</span>
+            <select v-model.number="pageSize" class="form-select form-select-sm">
+              <option v-for="size in pageSizeOptions" :key="size" :value="size">
+                {{ size }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tech-toolbar-block tech-toolbar-view">
+          <div class="btn-group btn-group-sm tech-view-toggle" role="group">
+            <button
+              type="button"
+              class="btn tech-view-toggle-btn"
+              :class="viewMode === 'table' ? 'btn-primary' : 'btn-outline-primary'"
+              @click="viewMode = 'table'"
+            >
+              <span class="tech-view-toggle-icon">
+                <LayoutList :size="16" :stroke-width="1.8" />
+              </span>
+              <span>Таблица</span>
+            </button>
+            <button
+              type="button"
+              class="btn tech-view-toggle-btn"
+              :class="viewMode === 'cards' ? 'btn-primary' : 'btn-outline-primary'"
+              @click="viewMode = 'cards'"
+            >
+              <span class="tech-view-toggle-icon">
+                <LayoutGrid :size="16" :stroke-width="1.8" />
+              </span>
+              <span>Карточки</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="tech-toolbar-actions tech-add-button-wrap d-flex flex-wrap gap-2">
           <button
             type="button"
             class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2 tech-add-button"
@@ -94,6 +102,26 @@
               <Plus :size="14" :stroke-width="2.2" />
             </span>
             <span class="tech-add-button-label">Добавить технологию</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-2"
+            @click="openClearTechnologiesDialog"
+          >
+            <span class="d-flex align-items-center">
+              <Trash2 :size="14" :stroke-width="2" />
+            </span>
+            <span class="d-none d-sm-inline">Очистить технологии</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-2"
+            @click="openInitTechnologiesDialog"
+          >
+            <span class="d-flex align-items-center">
+              <RefreshCcw :size="14" :stroke-width="2" />
+            </span>
+            <span class="d-none d-sm-inline">Инициализировать (dev)</span>
           </button>
         </div>
       </div>
@@ -344,18 +372,33 @@
       <div v-else class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
         <div v-for="tech in paginatedItems" :key="tech.id" class="col">
           <div
-            class="card h-100 shadow-sm border-0 tech-card"
+            class="card shadow-sm border-0 tech-card"
             :class="{ 'border-primary': expandedId === tech.id }"
           >
             <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="me-2">
-                  <h5 class="card-title mb-1">{{ tech.name }}</h5>
+              <div class="tech-card-header d-flex justify-content-between align-items-start mb-2">
+                <div class="me-2 flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <div
+                      v-if="tech.category"
+                      class="tech-card-category-icon"
+                      :class="categoryIconClass(tech.category)"
+                    >
+                      <component
+                        :is="categoryIcon(tech.category)"
+                        :size="14"
+                        stroke-width="1.8"
+                      />
+                    </div>
+                    <h5 class="card-title mb-0 text-truncate" :title="tech.name">
+                      {{ tech.name }}
+                    </h5>
+                  </div>
                   <div v-if="tech.category_display" class="text-muted small mb-1">
-                    Категория: {{ tech.category_display }}
+                    {{ tech.category_display }}
                   </div>
                   <div
-                    class="text-muted small"
+                    class="tech-card-meta text-muted small"
                     v-if="tech.aliases_count || tech.child_technologies_count"
                   >
                     <span v-if="tech.aliases_count">
@@ -371,6 +414,10 @@
                       Дочерние технологии: {{ tech.child_technologies_count }}
                     </span>
                   </div>
+                </div>
+                <div class="text-end small text-muted d-none d-lg-block ms-2">
+                  <div>Популярность: {{ popularityPercent(tech) }}%</div>
+                  <div>Упоминаний: {{ tech.occurrence_count ?? 0 }}</div>
                 </div>
               </div>
 
@@ -418,12 +465,13 @@
                   </span>
                 </button>
 
-                <div
-                  v-if="expandedId === tech.id"
-                  class="mt-2 border-top pt-2"
-                >
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div class="tech-section-header">
+                <Transition name="tech-expand">
+                  <div
+                    v-if="expandedId === tech.id"
+                    class="mt-2 border-top pt-2"
+                  >
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="tech-section-header">
                       <span class="tech-section-title">Синонимы</span>
                       <span
                         v-if="tech.aliases_count"
@@ -525,7 +573,8 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                  </div>
+                </Transition>
               </div>
             </div>
           </div>
@@ -578,11 +627,37 @@
         </nav>
       </div>
     </div>
+
+    <TechnologyCreateModal
+      v-if="showCreateModal"
+      v-model="showCreateModal"
+      :categories="categories"
+      :existing-technologies="items"
+      @created="reload"
+    />
+
+    <ConfirmDialog
+      :show="maintenanceDialog.show"
+      :title="maintenanceDialog.title"
+      :message="maintenanceDialog.message"
+      :confirm-text="maintenanceDialog.confirmText"
+      cancel-text="Отмена"
+      :variant="maintenanceDialog.variant"
+      :loading="dialogLoading"
+      @confirm="handleDialogConfirm"
+      @cancel="handleDialogCancel"
+      @close="handleDialogCancel"
+    />
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import { Trash2, RefreshCcw } from 'lucide-vue-next'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import TechnologyCreateModal from './TechnologyCreateModal.vue'
 import { useTechnologiesListPage } from '../js/useTechnologiesListPage.js'
+import { useTechnologiesMaintenance } from '../js/useTechnologiesMaintenance.js'
 
 const {
   Plus,
@@ -594,6 +669,8 @@ const {
   Server,
   Cloud,
   Wrench,
+  LayoutList,
+  LayoutGrid,
   search,
   searchInput,
   category,
@@ -602,6 +679,7 @@ const {
   viewMode,
   expandedId,
   showSynonymsHint,
+  showCreateModal,
   page,
   pageSize,
   pageSizeOptions,
@@ -636,6 +714,85 @@ const {
   categoryIcon,
   categoryIconClass,
 } = useTechnologiesListPage()
+
+const maintenanceDialog = ref({
+  show: false,
+  mode: null,
+  title: '',
+  message: '',
+  confirmText: '',
+  variant: 'danger',
+})
+
+const { clearing, initializing, clearTechnologies, initTechnologies } =
+  useTechnologiesMaintenance({
+    onChanged: reload,
+  })
+
+const openClearTechnologiesDialog = () => {
+  maintenanceDialog.value = {
+    show: true,
+    mode: 'clear',
+    title: 'Очистка технологий',
+    message: 'Вы действительно хотите удалить все технологии? Это действие нельзя отменить.',
+    confirmText: 'Удалить все',
+    variant: 'danger',
+  }
+}
+
+const openInitTechnologiesDialog = () => {
+  maintenanceDialog.value = {
+    show: true,
+    mode: 'init',
+    title: 'Инициализация технологий',
+    message: 'Будет выполнена первичная инициализация технологий с очисткой текущих данных. Продолжить?',
+    confirmText: 'Инициализировать',
+    variant: 'warning',
+  }
+}
+
+const dialogLoading = computed(() => {
+  if (maintenanceDialog.value.mode === 'clear') {
+    return clearing.value
+  }
+  if (maintenanceDialog.value.mode === 'init') {
+    return initializing.value
+  }
+  return false
+})
+
+const handleDialogCancel = () => {
+  if (dialogLoading.value) {
+    return
+  }
+  maintenanceDialog.value = {
+    ...maintenanceDialog.value,
+    show: false,
+  }
+}
+
+const handleDialogConfirm = async () => {
+  if (dialogLoading.value) return
+
+  try {
+    if (maintenanceDialog.value.mode === 'clear') {
+      await clearTechnologies()
+    } else if (maintenanceDialog.value.mode === 'init') {
+      await initTechnologies({
+        clear: true,
+        update: true,
+        dry_run: false,
+      })
+    }
+
+    maintenanceDialog.value = {
+      ...maintenanceDialog.value,
+      show: false,
+    }
+  } catch {
+    // Ошибка уже показана через toast
+  }
+}
 </script>
 
 <style scoped src="../scss/TechnologiesListPage.scss"></style>

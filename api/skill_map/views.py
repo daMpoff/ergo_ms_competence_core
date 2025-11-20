@@ -10,16 +10,34 @@ from drf_yasg import openapi
 
 from core.api.src.core.utils.mixins import SwaggerSafeMixin
 from modules.competence_core.api.skill_map.models import (
-    Skill, SkillSynonym, Technology, TechnologyAlias, SkillTechnology,
-    SkillCategory, TechnologyCategory
+    Skill,
+    SkillSynonym,
+    Technology,
+    TechnologyAlias,
+    SkillTechnology,
+    SkillCategory,
+    TechnologyCategory,
 )
 from modules.competence_core.api.skill_map.serializers import (
-    SkillSerializer, SkillCreateSerializer, SkillUpdateSerializer,
-    SkillSynonymSerializer, SkillSynonymCreateSerializer,
-    TechnologySerializer, TechnologyCreateSerializer, TechnologyUpdateSerializer,
-    TechnologyAliasSerializer, TechnologyAliasCreateSerializer,
-    SkillTechnologySerializer, SkillTechnologyCreateSerializer, SkillTechnologyUpdateSerializer,
-    SkillCategoryChoiceSerializer, TechnologyCategoryChoiceSerializer
+    SkillSerializer,
+    SkillCreateSerializer,
+    SkillUpdateSerializer,
+    SkillSynonymSerializer,
+    SkillSynonymCreateSerializer,
+    TechnologySerializer,
+    TechnologyCreateSerializer,
+    TechnologyUpdateSerializer,
+    TechnologyAliasSerializer,
+    TechnologyAliasCreateSerializer,
+    SkillTechnologySerializer,
+    SkillTechnologyCreateSerializer,
+    SkillTechnologyUpdateSerializer,
+    SkillCategoryChoiceSerializer,
+    TechnologyCategoryChoiceSerializer,
+)
+from modules.competence_core.api.skill_map.scripts import (
+    clear_technologies,
+    run_init_technologies,
 )
 
 
@@ -750,3 +768,100 @@ class SkillTechnologyViewSet(SwaggerSafeMixin, viewsets.ModelViewSet):
         queryset = self.get_queryset().filter(usage_frequency__gte=min_frequency)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class TechnologyMaintenanceViewSet(SwaggerSafeMixin, viewsets.ViewSet):
+    """
+    Вспомогательный ViewSet для массовых операций над технологиями.
+
+    Используется для очистки таблицы технологий и запуска первичной
+    инициализации (init_technologies) из UI.
+    """
+
+    permission_classes = [permissions.IsAdminUser]
+
+    @swagger_auto_schema(
+        operation_description=(
+            "Очистить все технологии и связанные с ними данные.\n\n"
+            "Удаляются все записи Technology, а также связанные алиасы и связи умение‑технология."
+        ),
+        security=[{'Bearer': []}],
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'deleted': openapi.Schema(
+                        type=openapi.TYPE_INTEGER,
+                        description='Количество удалённых технологий',
+                    )
+                },
+            ),
+            401: 'Неавторизованный доступ',
+            403: 'Недостаточно прав',
+        },
+    )
+    @action(detail=False, methods=['post'])
+    def clear(self, request):
+        """Полная очистка таблицы технологий."""
+        stats = clear_technologies()
+        return Response(stats, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+        operation_description=(
+            "Выполнить первичную инициализацию технологий (management‑команда init_technologies).\n\n"
+            "По умолчанию выполняется с параметрами clear=True, update=True."
+        ),
+        security=[{'Bearer': []}],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'clear': openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    default=True,
+                    description='Очистить существующие технологии перед инициализацией',
+                ),
+                'update': openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    default=True,
+                    description='Обновлять уже существующие технологии',
+                ),
+                'dry_run': openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    default=False,
+                    description='Режим проверки без применения изменений',
+                ),
+            },
+            required=[],
+        ),
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'log': openapi.Schema(
+                        type=openapi.TYPE_STRING,
+                        description='Текстовый вывод команды init_technologies',
+                    )
+                },
+            ),
+            401: 'Неавторизованный доступ',
+            403: 'Недостаточно прав',
+            500: 'Ошибка при инициализации технологий',
+        },
+    )
+    @action(detail=False, methods=['post'])
+    def init(self, request):
+        """Запуск первичной инициализации технологий через init_technologies."""
+        clear = bool(request.data.get('clear', True))
+        update = bool(request.data.get('update', True))
+        dry_run = bool(request.data.get('dry_run', False))
+
+        try:
+            result = run_init_technologies(clear=clear, update=update, dry_run=dry_run)
+        except Exception:
+            # Детали ошибки логируются внутри скрипта.
+            return Response(
+                {'detail': 'Ошибка при инициализации технологий'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(result, status=status.HTTP_200_OK)

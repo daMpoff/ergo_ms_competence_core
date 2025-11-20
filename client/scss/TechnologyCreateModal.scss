@@ -1,0 +1,114 @@
+.tech-create-modal-backdrop {
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.tech-create-modal {
+  border-radius: 0.9rem;
+  overflow: hidden;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.35);
+}
+
+.tech-create-modal .modal-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tech-create-modal .modal-footer {
+  border-top: 1px solid var(--color-border);
+}
+
+.tech-create-modal .form-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tech-create-modal .form-control,
+.tech-create-modal .form-select {
+  font-size: 0.9rem;
+}
+
+.tech-create-modal .form-range {
+  padding-top: 0.4rem;
+}
+
+.tech-section {
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.75rem;
+  background-color: var(--color-secondary-background);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.tech-section + .tech-section {
+  margin-top: 0.9rem;
+}
+
+.tech-section-header {
+  margin-bottom: 0.6rem;
+}
+
+.tech-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.tech-section-subtitle {
+  font-size: 0.8rem;
+  color: var(--color-secondary-text);
+}
+
+.tech-existing-warning {
+  font-size: 0.8rem;
+  color: #b45309; /* amber-700 */
+  background-color: rgba(251, 191, 36, 0.08);
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.tech-existing-warning-title {
+  font-weight: 500;
+  margin-right: 0.25rem;
+}
+
+.tech-existing-warning-name {
+  font-weight: 500;
+}
+
+.tech-existing-suggestions {
+  font-size: 0.8rem;
+  color: var(--color-secondary-text);
+}
+
+.tech-existing-suggestions-title {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.tech-existing-suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tech-existing-suggestion-badge {
+  font-weight: 400;
+}
+
+.tech-existing-suggestion-name {
+  margin-right: 0.15rem;
+}
+
+.tech-existing-suggestion-category {
+  opacity: 0.8;
+}
+
+@media (max-width: 575.98px) {
+  .tech-create-modal-backdrop {
+    align-items: flex-end;
+  }
+
+  .tech-create-modal {
+    border-radius: 0.9rem 0.9rem 0 0;
+  }
+}
+
+
