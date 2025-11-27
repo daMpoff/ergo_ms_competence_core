@@ -9,9 +9,13 @@ import io
 import logging
 
 from django.core.management import call_command
-from django.db import transaction
+from django.core.management.color import no_style
+from django.db import connection, transaction
 
-from modules.competence_core.api.skill_map.models import Technology
+from modules.competence_core.api.skill_map.models import (
+    Technology,
+    TechnologyAlias,
+)
 
 logger = logging.getLogger('modules.competence_core.skill_map.scripts')
 
@@ -28,9 +32,21 @@ def clear_technologies():
     """
     with transaction.atomic():
         deleted_count, _details = Technology.objects.all().delete()
+        _reset_pk_sequences(Technology, TechnologyAlias)
 
     logger.info('Удалено технологий: %s', deleted_count)
     return {'deleted': deleted_count}
+
+
+def _reset_pk_sequences(*models):
+    """Сбрасывает sequence первичных ключей переданных моделей."""
+    sql_statements = connection.ops.sequence_reset_sql(no_style(), list(models))
+    if not sql_statements:
+        return
+
+    with connection.cursor() as cursor:
+        for statement in sql_statements:
+            cursor.execute(statement)
 
 
 def run_init_technologies(*, clear=True, update=True, dry_run=False):
