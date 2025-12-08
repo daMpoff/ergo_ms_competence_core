@@ -193,6 +193,8 @@ class Command(BaseCommand):
         created = False
         updated = False
         aliases_count = 0
+        # Генерируем метрики, близкие к реальным, детерминированно от данных технологии
+        pop_val, rel_val, occ_val = self._calculate_metrics(tech_data)
         
         # Получаем родительскую технологию
         parent_tech = None
@@ -214,6 +216,12 @@ class Command(BaseCommand):
                     existing_tech.category = tech_data['category']
                     existing_tech.description = tech_data.get('description', '')
                     existing_tech.parent_tech = parent_tech
+                    existing_tech.popularity = pop_val
+                    existing_tech.relevance = rel_val
+                    existing_tech.occurrence_count = occ_val
+                    existing_tech.popularity = pop_val
+                    existing_tech.relevance = rel_val
+                    existing_tech.occurrence_count = occ_val
                     existing_tech.save()
                 
                 self.stdout.write(
@@ -235,14 +243,20 @@ class Command(BaseCommand):
                     name=tech_name,
                     category=tech_data['category'],
                     description=tech_data.get('description', ''),
-                    parent_tech=parent_tech
+                    parent_tech=parent_tech,
+                    popularity=pop_val,
+                    relevance=rel_val,
+                    occurrence_count=occ_val,
                 )
             else:
                 tech_obj = Technology.objects.create(
                     name=tech_name,
                     category=tech_data['category'],
                     description=tech_data.get('description', ''),
-                    parent_tech=parent_tech
+                    parent_tech=parent_tech,
+                    popularity=pop_val,
+                    relevance=rel_val,
+                    occurrence_count=occ_val,
                 )
                 self.stdout.write(
                     self.style.SUCCESS(f"  Создано: {tech_name}")
@@ -270,4 +284,49 @@ class Command(BaseCommand):
             aliases_count = len(tech_data['aliases'])
         
         return tech_obj, created, updated, aliases_count
+
+    @staticmethod
+    def _calculate_metrics(tech_data):
+        """
+        Детерминированно генерируем метрики, имитируя реалистичные значения.
+        Учитываем категорию, наличие алиасов и родителя.
+        """
+        from zlib import crc32
+
+        name = tech_data['name']
+        category = tech_data['category']
+        aliases = tech_data.get('aliases') or []
+        has_parent = bool(tech_data.get('parent'))
+
+        seed = crc32(f'{name}:{category}'.encode('utf-8')) & 0xffffffff
+        alias_bonus = min(8, len(aliases) * 2)  # до +8 за алиасы
+        parent_penalty = -3 if has_parent else 0  # дочерним немного ниже базу
+
+        category_base = {
+            'FRAMEWORK': 80,
+            'LANG': 85,
+            'LIBRARY': 72,
+            'TOOL': 68,
+            'DB': 78,
+            'PLATFORM': 74,
+            'PROTOCOL': 62,
+            'SERVICE': 75,
+        }
+        base = category_base.get(category, 70)
+
+        # Популярность: база по категории + шум от seed + бонус алиасов + коррекция за родителя
+        popularity = base + (seed % 12) - 5 + alias_bonus + parent_penalty
+        popularity = max(40, min(98, popularity))
+
+        # Релевантность: от 0.60 до 0.97, чуть выше для одиночных корневых технологий
+        relevance = 0.60 + ((seed >> 8) % 30) / 100
+        if not has_parent:
+            relevance += 0.03
+        relevance = round(max(0.55, min(0.97, relevance)), 2)
+
+        # Упоминания: базово завязаны на популярность, с шумом и бонусом алиасов
+        occurrence_count = int(popularity * 0.7 + ((seed >> 16) % 20) + alias_bonus * 2)
+        occurrence_count = max(5, min(250, occurrence_count))
+
+        return popularity, relevance, occurrence_count
 

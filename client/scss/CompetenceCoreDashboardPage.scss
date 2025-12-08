@@ -4,7 +4,8 @@
 
 .cc-dashboard-title {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .cc-dashboard-title-icon {
@@ -16,7 +17,7 @@
 
 .cc-dashboard-subtitle {
   font-size: 0.95rem;
-  color: var(--color-secondary-text);
+  color: #3c3c3c;
   max-width: 640px;
 }
 
@@ -25,6 +26,8 @@
 }
 
 .cc-dashboard-card {
+  border: 1px solid var(--color-border, #e5e7eb);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease,
@@ -33,15 +36,27 @@
 
 .cc-dashboard-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+  border-color: rgba(220, 53, 69, 0.35);
 }
 
 .cc-dashboard-card-icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 999px;
-  background-color: var(--color-secondary-background);
-  color: var(--color-primary);
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.65rem;
+  background-color: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
+}
+
+.kpi-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(220, 53, 69, 0.12);
+  color: #dc3545;
 }
 
 .cc-dashboard-card-title {
@@ -50,18 +65,205 @@
 }
 
 .cc-dashboard-card-accent-tech {
-  background: rgba(80, 136, 255, 0.08);
-  color: var(--color-primary);
+  background: rgba(220, 53, 69, 0.08);
+  color: #dc3545;
 }
 
 .cc-dashboard-card-accent-competences {
-  background: rgba(46, 184, 128, 0.08);
-  color: #2eb880;
+  background: rgba(108, 117, 125, 0.08);
+  color: #6c757d;
 }
 
 .cc-dashboard-card-accent-vacancies {
-  background: rgba(246, 173, 85, 0.08);
-  color: #f6ad55;
+  background: rgba(73, 80, 87, 0.08);
+  color: #495057;
+}
+
+.apexcharts-canvas {
+  font-family: inherit !important;
+}
+
+.apexcharts-legend-text {
+  color: var(--color-secondary-text) !important;
+}
+
+.apexcharts-xaxis text,
+.apexcharts-yaxis text {
+  fill: #6c757d !important;
+  font-size: 12px;
+}
+
+.apexcharts-grid line {
+  stroke: #e9ecef !important;
+}
+
+.apexcharts-tooltip {
+  border-radius: 8px !important;
+  border: 1px solid #e9ecef !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+.cc-filter-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.cc-filter-header {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #f1f3f5;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cc-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.cc-filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.cc-filter-title {
+  font-weight: 600;
+  color: #343a40;
+}
+
+.cc-filter-note {
+  line-height: 1.2;
+}
+
+.cc-filter-period {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cc-filter {
+  min-width: 280px;
+}
+
+.cc-filter-label {
+  margin-bottom: 0.25rem;
+}
+
+.cc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.55rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.6rem;
+  background: #fff;
+  color: #343a40;
+  font-size: 0.85rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.cc-chip input {
+  cursor: pointer;
+}
+
+.cc-chip:hover {
+  border-color: rgba(220, 53, 69, 0.35);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.cc-chip--muted {
+  border-color: #e9ecef;
+  color: #495057;
+}
+
+.cc-highlight-row {
+  margin-top: 0.4rem;
+}
+
+.cc-highlight-card {
+  border: 1px solid #eef0f3;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cc-highlight-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  border-color: rgba(220, 53, 69, 0.25);
+}
+
+.cc-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.82rem;
+  border: 1px solid transparent;
+}
+
+.cc-pill-up {
+  color: #b02a37;
+  background: rgba(220, 53, 69, 0.08);
+  border-color: rgba(220, 53, 69, 0.15);
+}
+
+.cc-pill-down {
+  color: #6c757d;
+  background: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.cc-growth-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cc-growth-name-icon {
+  width: 16px;
+  text-align: center;
+}
+
+.cc-spark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+}
+
+.cc-spark-dot {
+  width: 6px;
+  border-radius: 3px;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.cc-spark-dot-up {
+  background: linear-gradient(180deg, rgba(220, 53, 69, 0.8), rgba(220, 53, 69, 0.35));
+}
+
+.cc-spark-dot-down {
+  background: linear-gradient(180deg, #adb5bd, #dee2e6);
+}
+
+.cc-spark-dot:hover {
+  transform: translateY(-2px);
+}
+
+.apexcharts-title-text {
+  letter-spacing: 0.1px;
 }
 
 @media (max-width: 575.98px) {
@@ -73,5 +275,4 @@
     font-size: 0.9rem;
   }
 }
-
 

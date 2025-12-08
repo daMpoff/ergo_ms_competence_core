@@ -1,15 +1,28 @@
 <template>
   <div class="container py-4" v-if="!loading && profile">
-    <div class="mb-3">
-      <h2 class="mb-1">{{ profile.vacancy_title }}</h2>
-      <div class="text-muted small">
-        <span v-if="profile.vacancy_source">
-          Источник: {{ profile.vacancy_source }}
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start mb-3">
+      <div>
+        <h2 class="mb-1">{{ profile.vacancy_title }}</h2>
+        <div class="text-muted d-flex flex-wrap gap-2 small">
+          <span v-if="profile.vacancy_source" class="badge bg-light text-dark">
+            {{ profile.vacancy_source }}
+          </span>
+          <span v-if="profile.location" class="badge bg-light text-dark">
+            {{ profile.location }}
+          </span>
+          <span v-if="profile.salary" class="badge bg-light text-dark">
+            {{ profile.salary }}
+          </span>
+        </div>
+      </div>
+      <div v-if="profile.tags?.length" class="mt-2 mt-lg-0 d-flex flex-wrap gap-1">
+        <span v-for="tag in profile.tags" :key="tag" class="badge bg-light text-dark">
+          {{ tag }}
         </span>
       </div>
     </div>
 
-    <div class="card mb-4">
+    <div class="card mb-4 shadow-sm border-0">
       <div class="card-body">
         <h5 class="card-title mb-3">Информация о вакансии</h5>
         <div v-if="profile.vacancy_info">
@@ -38,9 +51,9 @@
       </div>
     </div>
 
-    <h5 class="mb-3">
+    <h5 class="mb-3 d-flex align-items-center gap-2">
       Компетенции профиля
-      <span class="badge bg-secondary ms-2">{{ competences.length }}</span>
+      <span class="badge bg-secondary">{{ competences.length }}</span>
     </h5>
 
     <div v-if="competences.length === 0" class="alert alert-info">
