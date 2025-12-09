@@ -1,33 +1,41 @@
 <template>
   <div class="container py-4" v-if="!loading && item">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-3">
-      <div>
-        <h2 class="mb-1">{{ item.name }}</h2>
-        <div class="text-muted d-flex flex-wrap gap-2 align-items-center">
-          <span v-if="item.level_display" class="badge bg-secondary">{{ item.level_display }}</span>
-          <span
-            class="badge"
-            :class="item.is_core ? 'bg-secondary' : 'bg-success'"
-          >
-            {{ item.is_core ? 'Базовая компетенция' : 'Узконаправленная компетенция' }}
+    <div class="cc-detail-header d-flex flex-column flex-md-row justify-content-between align-items-md-start mb-3 gap-2">
+      <div class="d-flex flex-column gap-2">
+        <h2 class="mb-0">{{ item.name }}</h2>
+        <div class="cc-detail-meta d-flex flex-wrap gap-2 align-items-center">
+          <span v-if="item.level_display" class="badge cc-badge-level">
+            {{ item.level_display }}
           </span>
-          <span class="small">
-            Положение в T‑профиле:
-            <strong>{{ item.is_core ? 'горизонтальная база' : 'вертикальная специализация' }}</strong>
+          <span
+            class="badge cc-badge-type"
+            :class="item.is_core ? 'cc-badge-type-base' : 'cc-badge-type-narrow'"
+          >
+            <component :is="item.is_core ? Shield : Flame" :size="12" />
+            {{ item.is_core ? 'Базовая' : 'Узконаправленная' }}
+          </span>
+          <span class="cc-detail-t-profile text-muted small">
+            <strong>Положение в T‑профиле:</strong>
+            {{ item.is_core ? 'горизонтальная база' : 'вертикальная специализация' }}
           </span>
         </div>
-      </div>
-      <div class="mt-3 mt-md-0 text-md-end">
-        <div>Популярность: <strong>{{ item.popularity }}</strong></div>
-        <div>Релевантность: <strong>{{ (item.relevance ?? 0).toFixed(2) }}</strong></div>
+        <div v-if="tags.length" class="cc-detail-tags d-flex flex-wrap gap-1">
+          <span
+            v-for="tag in tags"
+            :key="tag"
+            class="badge cc-competence-tag"
+          >
+            {{ tag }}
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="row g-3 mb-4">
       <div class="col-12 col-lg-8">
-        <div class="card shadow-sm border-0 h-100">
+        <div class="card shadow-sm border-0 h-100 cc-description-card">
           <div class="card-body">
-            <h5 class="card-title">Описание</h5>
+            <h5 class="card-title">Формализованное описание компетенции</h5>
             <p v-if="item.description" class="mb-2">{{ item.description }}</p>
             <p v-else class="text-muted mb-2">Нет описания.</p>
 
@@ -62,29 +70,40 @@
         </div>
       </div>
       <div class="col-12 col-lg-4">
-        <div class="card shadow-sm border-0 h-100">
-          <div class="card-body">
-            <h5 class="card-title">Краткие метрики</h5>
-            <ul class="list-unstyled mb-0 text-muted small">
-              <li class="d-flex justify-content-between">
-                <span>Компонентов:</span> <strong>{{ componentsCount }}</strong>
-              </li>
-              <li class="d-flex justify-content-between">
-                <span>Категорий умений:</span> <strong>{{ matrixRows.length }}</strong>
-              </li>
-              <li class="d-flex justify-content-between" v-if="item.components?.length">
-                <span>Уровни Блума:</span>
-                <strong>
-                  {{ bloomLevelsSummary }}
-                </strong>
-              </li>
-              <li class="d-flex justify-content-between">
-                <span>Популярность:</span> <strong>{{ item.popularity }}</strong>
-              </li>
-              <li class="d-flex justify-content-between">
-                <span>Релевантность:</span> <strong>{{ (item.relevance ?? 0).toFixed(2) }}</strong>
-              </li>
-            </ul>
+        <div class="card shadow-sm border-0 h-100 cc-kpi-panel">
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="cc-kpi-grid">
+              <div class="cc-kpi-card cc-kpi-card--compact">
+                <span class="cc-kpi-icon"><Layers :size="16" /></span>
+                <div>
+                  <div class="cc-kpi-label">Компонентов</div>
+                  <div class="cc-kpi-value">{{ componentsCount }}</div>
+                </div>
+              </div>
+              <div class="cc-kpi-card cc-kpi-card--compact">
+                <span class="cc-kpi-icon"><Grid3x3 :size="16" /></span>
+                <div>
+                  <div class="cc-kpi-label">Категории умений</div>
+                  <div class="cc-kpi-value">{{ matrixRows.length }}</div>
+                </div>
+              </div>
+              <div class="cc-kpi-card cc-kpi-card--compact">
+                <span class="cc-kpi-icon"><TrendingUp :size="16" /></span>
+                <div>
+                  <div class="cc-kpi-label">Популярность</div>
+                  <div class="cc-kpi-value">{{ item.popularity }}%</div>
+                </div>
+              </div>
+              <div class="cc-kpi-card cc-kpi-card--compact">
+                <span class="cc-kpi-icon"><Gauge :size="16" /></span>
+                <div>
+                  <div class="cc-kpi-label">Релевантность</div>
+                  <div class="cc-kpi-value">{{ (item.relevance ?? 0).toFixed(2) }}</div>
+                </div>
+              </div>
+            </div>
+
+            
           </div>
         </div>
       </div>
@@ -96,7 +115,7 @@
           <div class="card-body">
             <h5 class="card-title mb-2">Матрица умений по таксономии Блума</h5>
             <p class="text-muted small mb-3">
-              Отражает распределение умений по категориям и уровням таксономии Блума (от запоминания до создания).
+              Отражает распределение умений в компетенции по категориям и уровням таксономии Блума
             </p>
 
             <div v-if="matrixRows.length === 0" class="text-muted small">
@@ -188,10 +207,10 @@
                   v-model="draftComponent.required_level_display"
                   class="form-select form-select-sm"
                 >
-                  <option value="Junior">Junior</option>
-                  <option value="Middle">Middle</option>
-                  <option value="Senior">Senior</option>
-                  <option value="Expert">Expert</option>
+                  <option value="Junior">Начинающий</option>
+                  <option value="Middle">Средний</option>
+                  <option value="Senior">Опытный</option>
+                  <option value="Expert">Экспертный</option>
                 </select>
               </div>
               <div class="col-6">
@@ -254,7 +273,7 @@
                 :disabled="!canAddComponent"
                 @click="addComponent"
               >
-                Добавить компонент (локально)
+                Добавить компонент
               </button>
             </div>
           </div>
@@ -262,9 +281,10 @@
       </div>
     </div>
 
-    <h5 class="mb-3 d-flex align-items-center gap-2">
-      Компоненты компетенции
-      <span class="badge bg-secondary">{{ componentsCount }}</span>
+    <h5 class="mb-3 d-flex align-items-center gap-2 cc-components-header">
+      <span class="cc-components-title">Компоненты компетенции</span>
+      <span class="badge cc-badge-count">{{ componentsCount }}</span>
+      <span v-if="componentsCount === 0" class="text-muted small">Добавьте первый компонент</span>
     </h5>
 
     <div v-if="componentsCount === 0" class="alert alert-info">
@@ -272,7 +292,7 @@
     </div>
 
     <div v-else class="table-responsive">
-      <table class="table table-sm table-hover align-middle">
+      <table class="table table-sm table-hover align-middle cc-components-table">
         <thead>
           <tr>
             <th>Умение</th>
@@ -294,8 +314,8 @@
               </div>
             </td>
             <td class="d-none d-lg-table-cell">
-              <div v-if="comp.skill_technology_info">
-                <div>{{ comp.skill_technology_info.technology_name }}</div>
+              <div v-if="comp.skill_technology_info" class="cc-tech-badge">
+                <div class="fw-semibold small">{{ comp.skill_technology_info.technology_name }}</div>
                 <div class="text-muted small">
                   Категория: {{ comp.skill_technology_info.technology_category }}
                 </div>
@@ -303,20 +323,39 @@
               <span v-else class="text-muted small">Без технологии</span>
             </td>
             <td class="text-center">
-              {{ (comp.importance ?? 0).toFixed(2) }}
+              <div class="cc-cell-metric">
+                <span class="cc-metric-value">{{ (comp.importance ?? 0).toFixed(2) }}</span>
+                <div class="cc-metric-bar">
+                  <div
+                    class="cc-metric-bar-fill"
+                    :style="{ width: `${Math.min(Math.max((comp.importance ?? 0) * 100, 0), 100)}%` }"
+                  ></div>
+                </div>
+              </div>
             </td>
             <td class="text-center d-none d-md-table-cell">
-              <span v-if="comp.required_level_display" class="badge bg-light text-dark">
+              <span
+                v-if="comp.required_level_display"
+                class="badge cc-badge-level cc-badge-level--compact"
+              >
                 {{ comp.required_level_display }}
               </span>
             </td>
             <td class="text-center d-none d-md-table-cell">
-              <span v-if="comp.bloom_level" class="badge bg-light text-dark">
+              <span v-if="comp.bloom_level" :class="bloomLevelClass(comp.bloom_level)">
                 {{ comp.bloom_level }}
               </span>
             </td>
             <td class="text-center d-none d-md-table-cell">
-              {{ (comp.weight ?? 0).toFixed(2) }}
+              <div class="cc-cell-metric">
+                <span class="cc-metric-value">{{ (comp.weight ?? 0).toFixed(2) }}</span>
+                <div class="cc-metric-bar cc-metric-bar--muted">
+                  <div
+                    class="cc-metric-bar-fill"
+                    :style="{ width: `${Math.min(Math.max((comp.weight ?? 0) * 100, 0), 100)}%` }"
+                  ></div>
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -339,6 +378,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import { Flame, Gauge, Grid3x3, Layers, Shield, TrendingUp } from 'lucide-vue-next'
 import { useCompetenceDetail } from '../js/useCompetences.js'
 
 const route = useRoute()
@@ -348,6 +388,8 @@ const { item, loading, error, fetchCompetence } = useCompetenceDetail()
 const componentsCount = computed(
   () => item.value?.components_count ?? item.value?.components?.length ?? 0,
 )
+
+const tags = computed(() => item.value?.tags || [])
 
 const levelColumns = ['Запоминание', 'Понимание', 'Применение', 'Анализ', 'Оценка', 'Создание']
 
@@ -425,6 +467,40 @@ const resetDraftComponent = () => {
 
 const canAddComponent = computed(() => {
   return !!draftComponent.value.skill_name && !!draftComponent.value.skill_category
+})
+
+const bloomLevelClass = (level) => {
+  const map = {
+    Запоминание: 'remember',
+    Понимание: 'understand',
+    Применение: 'apply',
+    Анализ: 'analyze',
+    Оценка: 'evaluate',
+    Создание: 'create',
+  }
+  const key = map[level] || 'default'
+  return ['badge', 'cc-badge-bloom', `cc-badge-bloom--${key}`]
+}
+
+const bloomLevelTags = computed(() => {
+  const components = item.value?.components || []
+  if (!components.length) return []
+  const order = [
+    { label: 'Запоминание', key: 'remember' },
+    { label: 'Понимание', key: 'understand' },
+    { label: 'Применение', key: 'apply' },
+    { label: 'Анализ', key: 'analyze' },
+    { label: 'Оценка', key: 'evaluate' },
+    { label: 'Создание', key: 'create' },
+  ]
+  const counts = new Map()
+  components.forEach((comp) => {
+    if (!comp.bloom_level) return
+    counts.set(comp.bloom_level, (counts.get(comp.bloom_level) || 0) + 1)
+  })
+  return order
+    .filter(({ label }) => counts.has(label))
+    .map(({ label, key }) => ({ label, key, count: counts.get(label) }))
 })
 
 const addComponent = () => {

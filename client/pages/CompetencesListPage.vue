@@ -10,9 +10,6 @@
             Компетенции
           </h2>
           <div class="cc-competence-header-meta text-muted small d-flex flex-wrap align-items-center gap-2">
-            <span class="badge bg-light text-dark d-inline-flex align-items-center gap-1">
-              <LayoutDashboard :size="14" /> Витрина компетенций
-            </span>
             <span class="d-inline-flex align-items-center gap-1">
               <Layers :size="14" /> Всего: {{ stats.total }}
             </span>
@@ -97,15 +94,24 @@
                 </select>
               </div>
               <div class="col-12 col-md-4 col-lg-3 d-flex align-items-center">
-                <div class="form-check mb-1">
+                <div class="cc-filter-toggle">
                   <input
-                    id="cc-only-core"
                     v-model="onlyCore"
-                    class="form-check-input"
+                    class="form-check-input d-none"
                     type="checkbox"
+                    tabindex="-1"
                   />
-                  <label class="form-check-label small" for="cc-only-core">
-                     Узконаправленные
+                  <label
+                    class="cc-filter-toggle-label"
+                    :class="{ 'is-active': onlyCore }"
+                    role="button"
+                    tabindex="0"
+                    @click.prevent="onlyCore = !onlyCore"
+                    @keydown.enter.prevent="onlyCore = !onlyCore"
+                    @keydown.space.prevent="onlyCore = !onlyCore"
+                  >
+                    <span class="cc-filter-toggle-dot" :class="{ 'is-active': onlyCore }"></span>
+                    Узконаправленные
                   </label>
                 </div>
               </div>
@@ -227,15 +233,16 @@
                     </div>
                   </td>
                   <td class="d-none d-md-table-cell">
-                    <span v-if="comp.level_display" class="badge bg-secondary">
+                    <span v-if="comp.level_display" class="badge cc-badge-level">
                       {{ comp.level_display }}
                     </span>
                   </td>
                   <td class="d-none d-md-table-cell">
                     <span
-                      class="badge"
-                      :class="comp.is_core ? 'bg-secondary' : 'bg-danger text-white'"
+                      class="badge d-inline-flex align-items-center gap-1 cc-badge-type"
+                      :class="comp.is_core ? 'cc-badge-type-base' : 'cc-badge-type-narrow'"
                     >
+                      <component :is="comp.is_core ? Shield : Flame" :size="12" />
                       {{ comp.is_core ? 'Базовая' : 'Узконаправленная' }}
                     </span>
                   </td>
@@ -271,13 +278,15 @@
                     <div>
                       <h5 class="mb-1">{{ comp.name }}</h5>
                       <div class="text-muted small" v-if="comp.level_display">
-                        Уровень: {{ comp.level_display }}
+                        Уровень:
+                        <span class="badge cc-badge-level ms-1">{{ comp.level_display }}</span>
                       </div>
                     </div>
                     <span
-                      class="badge"
-                      :class="comp.is_core ? 'bg-secondary' : 'bg-danger text-white'"
+                      class="badge d-inline-flex align-items-center gap-1 cc-badge-type"
+                      :class="comp.is_core ? 'cc-badge-type-base' : 'cc-badge-type-narrow'"
                     >
+                      <component :is="comp.is_core ? Shield : Flame" :size="12" />
                       {{ comp.is_core ? 'Базовая' : 'Узконаправленная' }}
                     </span>
                   </div>
@@ -333,8 +342,15 @@
           </div>
           <div class="modal-body">
             <p class="text-muted small mb-3">
-              Заполните ключевые поля, чтобы сформировать компетенцию. Данные сохраняются только в рамках текущей сессии и не отправляются в БД.
+              Заполните обязательные атрибуты, чтобы сформировать карточку компетенции для витрины.
             </p>
+
+            <div class="cc-designer-hint mb-3">
+              <Info :size="40" class="text-danger" />
+              <span>
+                Обязательные поля — наименование и уровень; тип: базовая (T‑shaped core) или узконаправленная; метрики: популярность 0–100%, релевантность 0–1.
+              </span>
+            </div>
 
             <div class="mb-3">
               <label class="form-label small text-muted">Название компетенции</label>
@@ -342,7 +358,7 @@
                 v-model="draft.name"
                 type="text"
                 class="form-control"
-                placeholder="Например, Backend разработка"
+                placeholder="Например, Backend разработка (Python/FastAPI)"
               />
             </div>
 
@@ -356,27 +372,41 @@
               />
             </div>
 
-            <div class="row g-2 mb-3">
+            <div class="row g-2 mb-3 align-items-stretch">
               <div class="col-6">
-                <label class="form-label small text-muted">Уровень</label>
-                <select v-model="draft.level" class="form-select">
-                  <option value="JUNIOR">Junior</option>
-                  <option value="MIDDLE">Middle</option>
-                  <option value="SENIOR">Senior</option>
-                  <option value="EXPERT">Expert</option>
-                </select>
+                <div class="cc-field-box h-100">
+                  <label class="form-label small text-muted">Уровень</label>
+                  <select v-model="draft.level" class="form-select">
+                    <option value="JUNIOR">Начинающий</option>
+                    <option value="MIDDLE">Средний</option>
+                    <option value="SENIOR">Опытный</option>
+                    <option value="EXPERT">Экспертный</option>
+                  </select>
+                  <div class="text-muted small">Уровень соответствует ожидаемой зрелости специалиста и глубине компетенции.</div>
+                </div>
               </div>
-              <div class="col-6 d-flex align-items-end">
-                <div class="form-check">
-                  <input
-                    id="cc-designer-core"
-                    v-model="draft.is_core"
-                    class="form-check-input"
-                    type="checkbox"
-                  />
-                  <label class="form-check-label small" for="cc-designer-core">
-                    Ключевая компетенция
-                  </label>
+              <div class="col-6">
+                <div class="cc-field-box h-100 d-flex flex-column">
+                  <label class="form-label small text-muted d-block mb-1">Тип компетенции</label>
+                  <div class="cc-core-toggle" role="group" aria-label="Тип компетенции">
+                    <button
+                      type="button"
+                      class="cc-core-toggle-btn"
+                      :class="{ active: draft.is_core }"
+                      @click="draft.is_core = true"
+                    >
+                      <Shield :size="16" /> Базовая
+                    </button>
+                    <button
+                      type="button"
+                      class="cc-core-toggle-btn"
+                      :class="{ active: !draft.is_core }"
+                      @click="draft.is_core = false"
+                    >
+                      <Flame :size="16" /> Узконаправленная
+                    </button>
+                  </div>
+                  <div class="text-muted small mt-1">Выберите профиль: базовая для широкой опоры, узконаправленная для глубокой специализации.</div>
                 </div>
               </div>
             </div>
@@ -425,7 +455,7 @@
               :disabled="!canSaveDraft"
               @click="saveDraft"
             >
-              Сформировать (без сохранения)
+              Сформировать черновик
             </button>
           </div>
         </div>
@@ -437,7 +467,7 @@
 
 <script setup>
 import { BadgeCheck } from 'lucide-vue-next'
-import { Filter, LayoutDashboard, Layers, Shield, Flame, Sparkle, Gauge, Search } from 'lucide-vue-next'
+import { Filter, LayoutDashboard, Layers, Shield, Flame, Sparkle, Gauge, Search, Info } from 'lucide-vue-next'
 import { useCompetencesListPage } from '../js/useCompetencesListPage.js'
 
 const {

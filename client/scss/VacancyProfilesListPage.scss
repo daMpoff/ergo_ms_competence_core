@@ -1,4 +1,10 @@
 .cc-vacancies-header {
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
   .cc-vacancies-title-icon {
     width: 2.3rem;
     height: 2.3rem;
@@ -8,22 +14,264 @@
   }
 }
 
-.cc-vacancies-kpi-card {
+.cc-badge-accent {
+  border-radius: 999px;
+  background: rgba(220, 53, 69, 0.1);
+  color: #b02a37;
+  border: 1px solid rgba(220, 53, 69, 0.25);
+  padding: 0.28rem 0.65rem;
+  font-weight: 700;
+}
+
+.cc-badge-track {
+  border-radius: 999px;
+  background: rgba(220, 53, 69, 0.12);
+  color: #b02a37;
+  border: 1px solid rgba(220, 53, 69, 0.22);
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+}
+
+.cc-vacancies-filters-card {
+  border-radius: 0.9rem;
   border: 1px solid var(--color-border, #e5e7eb);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  padding: 0.9rem 1.05rem;
+}
+
+.cc-vacancies-filters-header {
+  .fw-semibold {
+    color: #343a40;
+  }
+}
+
+.cc-filters-row {
+  margin-top: 0.4rem;
+}
+
+.cc-quick-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cc-quick-pill {
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #f9fafb;
+  color: #343a40;
+  transition: all 0.16s ease;
+
+  &:hover {
+    border-color: rgba(220, 53, 69, 0.28);
+    color: #b02a37;
+    box-shadow: 0 1px 3px rgba(220, 53, 69, 0.1);
+  }
+}
+
+.cc-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.cc-filter-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(220, 53, 69, 0.16);
+  background: #f8f9fa;
+  color: #343a40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  svg {
+    color: #6c757d;
+  }
+
+  &:hover {
+    border-color: rgba(220, 53, 69, 0.28);
+    color: #b02a37;
+    background: rgba(220, 53, 69, 0.06);
+  }
+}
+
+.cc-vacancies-kpi-card {
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 0.9rem;
+  background: #fff;
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.08),
+    0 2px 6px rgba(15, 23, 42, 0.05);
+  border-top: 3px solid rgba(220, 53, 69, 0.28);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease,
     border-color 0.2s ease;
+
+  .card-body {
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .h4 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #dc3545;
+    margin-bottom: 0.1rem;
+  }
 
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
     border-color: rgba(220, 53, 69, 0.28);
   }
+
+  .cc-vacancies-kpi-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.85rem;
+    background: rgba(220, 53, 69, 0.12);
+    color: #b02a37;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .cc-kpi-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .cc-kpi-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cc-kpi-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: #b02a37;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+  }
+
+  .cc-kpi-label {
+    font-weight: 700;
+    color: #1f1f1f;
+    letter-spacing: -0.01em;
+  }
+
+  .cc-kpi-value-main {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #101010;
+  }
+
+  .cc-vacancies-kpi-date {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .cc-kpi-hint {
+    font-size: 0.78rem;
+    color: #6c757d;
+  }
+
+  .cc-kpi-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: #f8f9fa;
+    color: #343a40;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+}
+
+.cc-vacancies-table {
+  th {
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+    color: #6c757d;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  tbody tr:hover {
+    background: linear-gradient(90deg, rgba(220, 53, 69, 0.03), rgba(220, 53, 69, 0.01));
+    box-shadow: inset 3px 0 0 rgba(220, 53, 69, 0.24);
+  }
+
+  tbody tr.is-tracked {
+    box-shadow: inset 3px 0 0 rgba(220, 53, 69, 0.65);
+    background: linear-gradient(90deg, rgba(220, 53, 69, 0.08), rgba(220, 53, 69, 0.02));
+  }
+}
+
+.cc-vacancy-tag {
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #e5e7eb;
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
+.cc-badge-source {
+  border-radius: 0.65rem;
+  background: rgba(220, 53, 69, 0.08);
+  color: #b02a37;
+  border: 1px solid rgba(220, 53, 69, 0.18);
+  font-weight: 600;
+}
+
+.cc-badge-competence {
+  border-radius: 0.65rem;
+  background: #f5f6f8;
+  border: 1px solid #e5e7eb;
+  color: #343a40;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+}
+
+.cc-badge-fresh {
+  border-radius: 0.65rem;
+  background: rgba(32, 201, 151, 0.12);
+  color: #0f6b4a;
+  border: 1px solid rgba(32, 201, 151, 0.22);
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+}
+
+.cc-badge-salary {
+  border-radius: 0.65rem;
+  background: rgba(32, 201, 151, 0.12);
+  color: #0f6b4a;
+  border: 1px solid rgba(32, 201, 151, 0.22);
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
 }
 
 .cc-vacancies-card {
   border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.9rem;
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease,
@@ -33,6 +281,25 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
     border-color: rgba(220, 53, 69, 0.26);
+  }
+}
+
+.cc-vacancy-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.cc-btn-track {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 32px;
+  padding: 0;
+
+  &.btn-danger {
+    color: #fff;
   }
 }
 
